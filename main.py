@@ -1,0 +1,109 @@
+import asyncio
+import argparse
+import datetime
+import io, os
+from PIL import Image
+import requests
+from cfg import *
+
+async def imagine(title, prompt):
+    dir_path = f'./output/'
+    if not os.path.exists(dir_path): os.makedirs(dir_path)
+    for i in range(NO_PICS):
+            try: binary = await generate_image(prompt)
+            except Exception as e:
+                print(e)
+                continue
+            try: img = Image.open(io.BytesIO(binary))
+            except: img = Image.open(binary)
+            img.save(f'{dir_path}{title}_{i}.png')
+            print("Prediction succeeded, Image saved.")
+    return True
+
+
+async def generate_image(prompt):
+    print("polling",URL,DEFAULT_MODEL,"with Prompt:",prompt)
+    binary = await replicate_poll(prompt)
+    return binary
+
+
+async def replicate_poll(prompt, model=DEFAULT_MODEL):
+    if model not in rep_models: model = DEFAULT_MODEL
+    m = rep_models[model]
+    if "schnell" in model: 
+        payload = {
+            "input": {
+                "prompt": prompt,
+                "output_format": "png",
+                "aspect_ratio" : "2:3",
+                "disable_safety_checker": True
+            }
+        }
+    else:
+        payload = {
+            "input": {
+                "prompt": prompt,
+                "output_format": "png",
+                "aspect_ratio" : "2:3",
+                "safety_tolerance":6
+            }
+        }
+    url = f"{URL}{m}/predictions"
+    print("polling replicate at", url)
+    response = await asyncio.to_thread(requests.post,
+        url,
+        headers={
+            "Authorization": f"Bearer {REPLICATE_key}",
+            "Content-Type": "application/json"
+        },
+        json=payload  # Use json= instead of data=
+    )
+
+    if response.status_code != 201:  # 201 is the status code for a created resource
+        raise Exception(str(response.json()))
+
+    get_url = response.json()["urls"]["get"]
+    
+# Polling for the prediction result
+    while True:
+        poll_response = await asyncio.to_thread(requests.get, get_url, headers={
+            "Authorization": f"Bearer {REPLICATE_key}"
+        })
+        
+        if poll_response.status_code != 200:
+            raise Exception(str(poll_response.json()))
+        
+        poll_data = poll_response.json()
+        if poll_data["status"] == "succeeded":
+            # The output is typically a list of URLs to the generated images
+            output = poll_data["output"]
+            if isinstance(output, str): image_url = output
+            else: image_url = output[0]
+                # Fetch the first image content from the list of output URLs
+            image_response = await asyncio.to_thread(requests.get, image_url)
+            return image_response.content
+
+        elif poll_data["status"] == "failed":
+            raise Exception(f"Prediction failed: {poll_data['error']}") #)
+        
+        # Wait for a short period before polling again
+        await asyncio.sleep(2)
+
+
+def main(prompt="", title=""):
+    asyncio.run(imagine(prompt, title))
+
+
+if __name__ == "__main__":
+    current_date = datetime.date.today()
+    date_string = current_date.strftime("%Y-%m-%d")
+    parser = argparse.ArgumentParser(description='App to generate smut in docx with covers in png.')
+    parser.add_argument('--prompt', required=True, help='Submit image prompt.')
+    parser.add_argument('--title', required=False, help='Image title.', default=date_string)
+
+    args = parser.parse_args()
+    prompt = args.prompt
+    title = args.title
+
+    main(title, prompt)
+
