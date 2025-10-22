@@ -23,7 +23,7 @@ async def imagine(title, prompt, model, n):
 
 
 async def generate_image(prompt, model):
-    print("polling",URL,model,"with Prompt:",prompt)
+    #print("polling",URL,model,"with Prompt:",prompt)
     binary = await replicate_poll(prompt, model)
     return binary
 
