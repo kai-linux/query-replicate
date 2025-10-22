@@ -108,7 +108,7 @@ if __name__ == "__main__":
     prompt = args.prompt
     title = args.title
     model = args.model
-    n = args.n
+    n = int(args.n)
 
     main(title, prompt, model, n)
 
