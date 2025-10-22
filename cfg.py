@@ -25,7 +25,7 @@ rep_models = {
         "flux-dev":"black-forest-labs/flux-dev",
         "sd3":"stability-ai/stable-diffusion-3",
         "seedream":"bytedance/seedream-4",
-        "imagen":"google/imagen-4-ultra/",
+        "imagen":"google/imagen-4-ultra",
         "banana":"google/nano-banana",
         "kontext-max":"black-forest-labs/flux-kontext-max",
         }
