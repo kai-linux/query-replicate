@@ -31,12 +31,14 @@ async def generate_image(prompt, model):
 async def replicate_poll(prompt, model=DEFAULT_MODEL):
     if model not in rep_models: model = DEFAULT_MODEL
     m = rep_models[model]
+    if "imagen" in model: aspect_ratio = "3:4"
+    else: aspect_ratio = "2:3"
     if "schnell" in model: 
         payload = {
             "input": {
                 "prompt": prompt,
                 "output_format": "png",
-                "aspect_ratio" : "2:3",
+                "aspect_ratio" : aspect_ratio,
                 "disable_safety_checker": True
             }
         }
@@ -45,7 +47,7 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
             "input": {
                 "prompt": prompt,
                 "output_format": "png",
-                "aspect_ratio" : "2:3",
+                "aspect_ratio" : aspect_ratio,
                 "safety_tolerance":6
             }
         }
