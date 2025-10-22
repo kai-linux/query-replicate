@@ -97,7 +97,7 @@ def main(prompt, title, model, n):
 
 if __name__ == "__main__":
     current_date = datetime.date.today()
-    date_string = current_date.strftime("%Y-%m-%d")
+    date_string = current_date.strftime("%Y-%m-%d-%H-%M")
     parser = argparse.ArgumentParser(description='App to generate smut in docx with covers in png.')
     parser.add_argument('--prompt', required=True, help='Submit image prompt.')
     parser.add_argument('--n', required=False, help='Number of images to generate.', default=NO_PICS)
