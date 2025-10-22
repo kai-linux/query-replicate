@@ -17,7 +17,7 @@ async def imagine(title, prompt, model, n):
                 continue
             try: img = Image.open(io.BytesIO(binary))
             except: img = Image.open(binary)
-            img.save(f'{dir_path}{title}_{DEFAULT_MODEL}_{i}.png')
+            img.save(f'{dir_path}{title}_{model}_{i}.png')
             print("Prediction succeeded, Image saved.")
     return True
 
