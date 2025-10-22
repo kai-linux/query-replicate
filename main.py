@@ -43,6 +43,11 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
                 "disable_safety_checker": True
             }
         )
+    elif "imagen" in model: 
+        cargo.update({
+                "safety_filter_level": "block_only_high"
+            }
+        )
     else:
         cargo.update({
                 "safety_tolerance":6
