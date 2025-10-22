@@ -90,7 +90,7 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
         await asyncio.sleep(2)
 
 
-def main(prompt="", title=""):
+def main(prompt, title, model):
     asyncio.run(imagine(prompt, title, model))
 
 
