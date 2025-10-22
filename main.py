@@ -33,24 +33,22 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
     m = rep_models[model]
     if "imagen" in model: aspect_ratio = "3:4"
     else: aspect_ratio = "2:3"
-    if "schnell" in model: 
-        payload = {
-            "input": {
+    cargo = {
                 "prompt": prompt,
                 "output_format": "png",
                 "aspect_ratio" : aspect_ratio,
+    }
+    if "schnell" in model: 
+        cargo.update({
                 "disable_safety_checker": True
             }
-        }
+        )
     else:
-        payload = {
-            "input": {
-                "prompt": prompt,
-                "output_format": "png",
-                "aspect_ratio" : aspect_ratio,
+        cargo.update({
                 "safety_tolerance":6
             }
-        }
+        )
+    payload = {"input": cargo}
     url = f"{URL}{m}/predictions"
     print("polling replicate at", url)
     response = await asyncio.to_thread(requests.post,
