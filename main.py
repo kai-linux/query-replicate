@@ -6,10 +6,11 @@ from PIL import Image
 import requests
 from cfg import *
 
-async def imagine(title, prompt, model):
+async def imagine(title, prompt, model, n):
     dir_path = f'./output/'
     if not os.path.exists(dir_path): os.makedirs(dir_path)
-    for i in range(NO_PICS):
+    if n < 1: n = NO_PICS
+    for i in range(n):
             try: binary = await generate_image(prompt, model)
             except Exception as e:
                 print(e)
@@ -90,8 +91,8 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
         await asyncio.sleep(2)
 
 
-def main(prompt, title, model):
-    asyncio.run(imagine(prompt, title, model))
+def main(prompt, title, model, n):
+    asyncio.run(imagine(prompt, title, model, n))
 
 
 if __name__ == "__main__":
@@ -99,6 +100,7 @@ if __name__ == "__main__":
     date_string = current_date.strftime("%Y-%m-%d")
     parser = argparse.ArgumentParser(description='App to generate smut in docx with covers in png.')
     parser.add_argument('--prompt', required=True, help='Submit image prompt.')
+    parser.add_argument('--n', required=False, help='Number of images to generate.', default=NO_PICS)
     parser.add_argument('--title', required=False, help='Image title.', default=date_string)
     parser.add_argument('--model', required=False, help='Name of image model.', default=DEFAULT_MODEL)
 
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     prompt = args.prompt
     title = args.title
     model = args.model
+    n = args.n
 
-    main(title, prompt, model)
+    main(title, prompt, model, n)
 
