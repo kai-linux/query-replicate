@@ -6,24 +6,24 @@ from PIL import Image
 import requests
 from cfg import *
 
-async def imagine(title, prompt):
+async def imagine(title, prompt, model):
     dir_path = f'./output/'
     if not os.path.exists(dir_path): os.makedirs(dir_path)
     for i in range(NO_PICS):
-            try: binary = await generate_image(prompt)
+            try: binary = await generate_image(prompt, model)
             except Exception as e:
                 print(e)
                 continue
             try: img = Image.open(io.BytesIO(binary))
             except: img = Image.open(binary)
-            img.save(f'{dir_path}{title}_{i}.png')
+            img.save(f'{dir_path}{title}_{DEFAULT_MODEL}_{i}.png')
             print("Prediction succeeded, Image saved.")
     return True
 
 
-async def generate_image(prompt):
-    print("polling",URL,DEFAULT_MODEL,"with Prompt:",prompt)
-    binary = await replicate_poll(prompt)
+async def generate_image(prompt, model):
+    print("polling",URL,model,"with Prompt:",prompt)
+    binary = await replicate_poll(prompt, model)
     return binary
 
 
@@ -91,7 +91,7 @@ async def replicate_poll(prompt, model=DEFAULT_MODEL):
 
 
 def main(prompt="", title=""):
-    asyncio.run(imagine(prompt, title))
+    asyncio.run(imagine(prompt, title, model))
 
 
 if __name__ == "__main__":
@@ -100,10 +100,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='App to generate smut in docx with covers in png.')
     parser.add_argument('--prompt', required=True, help='Submit image prompt.')
     parser.add_argument('--title', required=False, help='Image title.', default=date_string)
+    parser.add_argument('--model', required=False, help='Name of image model.', default=DEFAULT_MODEL)
 
     args = parser.parse_args()
     prompt = args.prompt
     title = args.title
+    model = args.model
 
-    main(title, prompt)
+    main(title, prompt, model)
 
